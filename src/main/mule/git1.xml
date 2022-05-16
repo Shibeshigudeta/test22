@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="87cd23c0-ef0c-4e57-b818-be9418fddf69" >
 		<http:listener-connection host="0.0.0.0" port="8089" />
 	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="8abbdfaa-7960-4abf-b099-cb537d4ae44b" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="amazon4" />
+	</db:config>
 	<flow name="git1Flow" doc:id="53745814-4b05-4f99-b599-80d0ccd62953" >
 		<http:listener doc:name="Listener" doc:id="d67593f1-ce98-4a91-a294-4d88ee504091" config-ref="HTTP_Listener_config" path="/git"/>
-		<set-payload value="hello" doc:name="Set Payload" doc:id="ba62186d-724c-4f1d-9a5d-c1f58c61c37b" />
+		<db:select doc:id="e2a3cc54-1251-4781-82ca-f1429fdc4875" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM school_a_db;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="8ba6723d-2f8b-428b-95b1-969add9f9b71" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="632e80de-0e8b-41c3-9cad-cbaa76492ffb" />
 	</flow>
 </mule>
